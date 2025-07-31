@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Girlfriend's Day!</title>
+  <link rel="icon" href="path/to/heart_favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  
+</head>
+<body>
+
+<div class="puzzle-container">
+  <h1>PUZZLE FOR U!</h1>
+
+  <div class="piece-pool-container">
+    <h3>Pieces to place:</h3>
+    <div class="piece-pool" id="piece-pool"></div>
+  </div>
+
+  <div class="puzzle-board" id="puzzle-board"></div>
+
+  <button id="shuffle-btn">Shuffle Pieces</button>
+</div>
+</body> 
+<script>
+const board = document.getElementById('puzzle-board');
+const pool = document.getElementById('piece-pool');
+const size = 3;
+const pieces = [];
+
+const pieceWidth = 600 / size;
+const pieceHeight = 400 / size;
+
+function createPieces() {
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      const piece = document.createElement('div');
+      piece.classList.add('puzzle-piece');
+      piece.style.width = `${pieceWidth}px`;
+      piece.style.height = `${pieceHeight}px`;
+      piece.style.backgroundSize = `600px 400px`;
+      piece.style.backgroundPosition = `-${col * pieceWidth}px -${row * pieceHeight}px`;
+      piece.dataset.correct = `${row}-${col}`;
+      piece.draggable = true;
+      pieces.push(piece);
+    }
+  }
+}
+
+function shuffleAndScatter() {
+  pool.innerHTML = '';
+  board.innerHTML = '';
+
+  pieces.forEach(piece => {
+    const randomX = Math.random() * (pool.clientWidth - pieceWidth);
+    const randomY = Math.random() * (pool.clientHeight - pieceHeight);
+    piece.style.left = `${randomX}px`;
+    piece.style.top = `${randomY}px`;
+    pool.appendChild(piece);
+  });
+}
+
+function enableDragAndDrop() {
+  document.querySelectorAll('.puzzle-piece').forEach(piece => {
+    piece.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('element-id', pieces.indexOf(piece));
+    });
+  });
+
+  Array.from({ length: size * size }).forEach(() => {
+    const slot = document.createElement('div');
+    slot.classList.add('drop-slot');
+    slot.style.width = `${pieceWidth}px`;
+    slot.style.height = `${pieceHeight}px`;
+
+    slot.addEventListener('dragover', (e) => e.preventDefault());
+
+    slot.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const pieceIndex = e.dataTransfer.getData('element-id');
+      const piece = pieces[pieceIndex];
+      if (slot.firstChild) {
+        pool.appendChild(slot.firstChild);
+      }
+      piece.style.position = 'static'; // snap into grid
+      slot.innerHTML = '';
+      slot.appendChild(piece);
+    });
+
+    board.appendChild(slot);
+  });
+}
+
+document.getElementById('shuffle-btn').addEventListener('click', () => {
+  shuffleAndScatter();
+  enableDragAndDrop();
+});
+
+createPieces();
+shuffleAndScatter();
+enableDragAndDrop();
+
+
+</script>

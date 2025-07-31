@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Girlfriend's Day!</title>
+  <link rel="icon" href="path/to/heart_favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style2.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="floating-background"></div>
+
+  <!-- 🎞️ Carousel FIRST -->
+  <div class="image-carousel hidden-on-load" id="carouselSection">
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev">&#10094;</button>
+      <div class="carousel-window">
+        <div class="carousel-track">
+          <img src="./images/The Goo Goo Dolls - Iris.png" alt="Image 1">
+          <img src="./images/Snow Patrol - Chasing Cars.png" alt="Image 2">
+          <img src="./images/Coldplay - Yellow.png" alt="Image 3">
+          <img src="./images/Adrianne Lenker - anything.png" alt="Image 4">
+          <img src="./images/Bruno Major - Nothing.png" alt="Image 5">
+          <img src="./images/Adrianne Lenker - not a lot, just forever.png" alt="Image 6">
+          <img src="./images/Cigarettes After Sex - Sweet.png" alt="Image 7">
+          <img src="./images/Edith Whiskers - Home.png" alt="Image 8">
+          <img src="./images/Gigi Perez - Sailor Song.png" alt="Image 9">
+          <img src="./images/New West - Those Eyes.png" alt="Image 10">
+          <img src="./images/Sleeping At Last - Turning Page.png" alt="Image 11">
+          <img src="./images/Paramore - The Only Exception.png" alt="Image 12">
+          <img src="./images/Hozier - Take Me To Church.png" alt="Image 13">
+        </div>
+      </div>
+      <button class="carousel-btn next">&#10095;</button>
+    </div>
+  </div>
+
+  <!-- 🎵 Spotify SECOND -->
+  <div class="spotify-embed hidden-on-load" id="spotifyEmbed">
+    <iframe style="border-radius:12px"
+      src="https://open.spotify.com/embed/playlist/6VmO4KVAUcKrhUrPf5XnoW?utm_source=generator&theme=0"
+      width="100%" height="352" frameborder="0" allowfullscreen=""
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      loading="lazy">
+    </iframe>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const track = document.querySelector('.carousel-track');
+      const prevBtn = document.querySelector('.carousel-btn.prev');
+      const nextBtn = document.querySelector('.carousel-btn.next');
+      const images = document.querySelectorAll('.carousel-track img');
+      let index = 0;
+
+      function updateCarousel() {
+        const imageWidth = images[0].clientWidth;
+        track.style.transform = `translateX(-${index * imageWidth}px)`;
+      }
+
+      nextBtn.addEventListener('click', () => {
+        if (index < images.length - 1) {
+          index++;
+          updateCarousel();
+        }
+      });
+
+      prevBtn.addEventListener('click', () => {
+        if (index > 0) {
+          index--;
+          updateCarousel();
+        }
+      });
+
+      window.addEventListener('resize', updateCarousel);
+    });
+  </script>
+
+  <div class="down-arrow" style="display: none;">
+        <span>&#x25BC;</span>
+      </div>
+
+<div class="puzzle-container">
+  <h1>GUESS WHAT.... I MADE A PUZZLE FOR YOU TO BUILD!</h1>
+  <div class="piece-pool-container">
+    <div class="piece-pool" id="piece-pool"></div>
+  </div>
+
+  <div class="puzzle-board" id="puzzle-board"></div>
+
+  <button id="shuffle-btn">Shuffle Pieces</button>
+</div>
+</body> 
+<script>
+const board = document.getElementById('puzzle-board');
+const pool = document.getElementById('piece-pool');
+const size = 3;
+const pieces = [];
+
+const pieceWidth = 600 / size;
+const pieceHeight = 400 / size;
+
+function createPieces() {
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      const piece = document.createElement('div');
+      piece.classList.add('puzzle-piece');
+      piece.style.width = `${pieceWidth}px`;
+      piece.style.height = `${pieceHeight}px`;
+      piece.style.backgroundSize = `600px 400px`;
+      piece.style.backgroundPosition = `-${col * pieceWidth}px -${row * pieceHeight}px`;
+      piece.dataset.correct = `${row}-${col}`;
+      piece.draggable = true;
+      pieces.push(piece);
+    }
+  }
+}
+
+function shuffleAndScatter() {
+  pool.innerHTML = '';
+  board.innerHTML = '';
+
+  pieces.forEach(piece => {
+    const randomX = Math.random() * (pool.clientWidth - pieceWidth);
+    const randomY = Math.random() * (pool.clientHeight - pieceHeight);
+    piece.style.left = `${randomX}px`;
+    piece.style.top = `${randomY}px`;
+    pool.appendChild(piece);
+  });
+}
+
+function enableDragAndDrop() {
+  document.querySelectorAll('.puzzle-piece').forEach(piece => {
+    piece.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('element-id', pieces.indexOf(piece));
+    });
+  });
+
+  Array.from({ length: size * size }).forEach(() => {
+    const slot = document.createElement('div');
+    slot.classList.add('drop-slot');
+    slot.style.width = `${pieceWidth}px`;
+    slot.style.height = `${pieceHeight}px`;
+
+    slot.addEventListener('dragover', (e) => e.preventDefault());
+
+    slot.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const pieceIndex = e.dataTransfer.getData('element-id');
+      const piece = pieces[pieceIndex];
+      if (slot.firstChild) {
+        pool.appendChild(slot.firstChild);
+      }
+      piece.style.position = 'static'; // snap into grid
+      slot.innerHTML = '';
+      slot.appendChild(piece);
+    });
+
+    board.appendChild(slot);
+  });
+}
+
+document.getElementById('shuffle-btn').addEventListener('click', () => {
+  shuffleAndScatter();
+  enableDragAndDrop();
+});
+
+createPieces();
+shuffleAndScatter();
+enableDragAndDrop();
+</script>
+
+</body>
+</html>
